@@ -1,0 +1,112 @@
+---
+description: GSAP/ScrollTrigger/Splideを使用したアニメーション規約
+globs: **/*.js
+alwaysApply: false
+---
+
+# アニメーション規約
+
+GSAP、ScrollTrigger、Splideを使用したアニメーション実装のルールです。
+
+## 使用ライブラリ
+
+- **GSAP**: アニメーション基盤
+- **ScrollTrigger**: スクロール連動アニメーション
+- **Splide**: スライダー/カルーセル
+
+## 基本パターン
+
+### セクションコメントで区切る
+
+```javascript
+/* ------------------------------
+セクション名 説明
+------------------------------ */
+document.addEventListener("DOMContentLoaded", function () {
+  const element = document.querySelector(".js-xxx");
+  if (!element) return; // 要素がない場合は早期リターン
+  
+  // アニメーション処理
+});
+```
+
+### 早期リターン
+
+要素が存在しない場合は早期リターンでエラーを防ぐ。
+
+```javascript
+const target = document.querySelector(".js-target");
+if (!target) return;
+```
+
+## GSAP使用例
+
+### 初期状態の設定
+
+```javascript
+gsap.set(element, {
+  opacity: 0,
+  y: 20,
+});
+```
+
+### アニメーション実行
+
+```javascript
+gsap.to(element, {
+  opacity: 1,
+  y: 0,
+  duration: 0.8,
+  ease: "power2.out",
+});
+```
+
+## ScrollTrigger使用例
+
+```javascript
+gsap.to(element, {
+  opacity: 1,
+  scrollTrigger: {
+    trigger: element,
+    start: "top bottom-=20%",
+    end: "bottom center",
+    scrub: true,  // スクロール連動
+  },
+});
+```
+
+## Splide使用例
+
+```javascript
+const splide = new Splide(".js-slider", {
+  type: 'loop',
+  perPage: 3,
+  gap: '24px',
+  pagination: false,
+  breakpoints: {
+    767: {
+      perPage: 1,
+      gap: '16px',
+    },
+  },
+});
+
+splide.mount();
+```
+
+### AutoScrollプラグイン
+
+```javascript
+const splide = new Splide(".js-auto-slider", {
+  type: 'loop',
+  drag: false,
+  arrows: false,
+  pagination: false,
+  autoScroll: {
+    speed: 0.5,
+    pauseOnHover: false,
+  },
+});
+
+splide.mount(window.splide.Extensions);
+```

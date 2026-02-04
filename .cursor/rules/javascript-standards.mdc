@@ -1,0 +1,103 @@
+---
+description: JavaScriptコーディング規約（セレクタ命名、data属性）
+globs: **/*.js
+alwaysApply: false
+---
+
+# JavaScriptコーディング規約
+
+## 共通関数
+
+重複定義を避け、**ファイル冒頭で1回だけ定義**する。
+
+```javascript
+// ファイル冒頭で共通関数を定義
+const isDesktopDevice = () => {
+  const isHoverSupported = window.matchMedia('(hover: hover)').matches;
+  const isPointerFine = window.matchMedia('(pointer: fine)').matches;
+  return isHoverSupported && isPointerFine;
+};
+
+// 以降の各機能で使用
+```
+
+## ブレークポイント定数
+
+SCSSのブレークポイントと同期を保つ。
+
+```javascript
+const BREAKPOINTS = {
+  md: 767,
+  lg: 1024,
+};
+
+// 使用例
+const mediaQuery = window.matchMedia(`(max-width: ${BREAKPOINTS.md}px)`);
+```
+
+## JS用セレクタの命名
+
+スタイル用クラスとJS用クラスを分離します。
+
+```html
+<!-- スタイル用: p-top-mv__img -->
+<!-- JS用: js-top-mv-img -->
+<div class="p-top-mv__img js-top-mv-img">
+```
+
+### 命名規則
+
+- プレフィックス: `js-`
+- 形式: `js-ページ名-要素名`（ケバブケース）
+
+```javascript
+// ✅ 良い例
+document.querySelector('.js-top-mv-first-img');
+document.querySelectorAll('.js-video-thumbnail');
+
+// ❌ 悪い例（スタイル用クラスをJSで使用）
+document.querySelector('.p-top-mv__first-img');
+```
+
+**重要**: JSでのDOM操作は必ず `js-` プレフィックスのクラスを使用。スタイル用クラス（p-, c-, l-）をJSで使用しない。
+
+## 状態クラス
+
+状態を表すクラスは `is-` プレフィックスを使用。
+
+```javascript
+// 状態クラスの例
+element.classList.add('is-active');
+element.classList.remove('is-show');
+element.classList.toggle('is-open');
+```
+
+- `is-active`: アクティブ状態
+- `is-show`: 表示状態
+- `is-open`: 開いた状態
+- `is-hidden`: 非表示状態
+
+## data属性の活用
+
+動的なデータはdata属性で管理します。
+
+```html
+<div class="js-video-thumbnail"
+     data-modal-id="modal-mv"
+     data-video-id="DMHgCJeCYRE">
+```
+
+```javascript
+const videoId = element.dataset.videoId;
+const modalId = element.dataset.modalId;
+```
+
+## イベントリスナー
+
+```javascript
+// DOMContentLoadedで初期化
+document.addEventListener('DOMContentLoaded', () => {
+  initSlider();
+  initModal();
+});
+```

@@ -1,0 +1,34 @@
+<% ROOT_PATH='./'; const EJS_PATH='./'; const PAGE_DATA="components"; %>
+<!DOCTYPE html>
+<html lang="ja">
+<%- include(EJS_PATH + 'common/_head' ,{ rootPath: ROOT_PATH, page: json[PAGE_DATA] }) %>
+
+<body>
+  <%- include(EJS_PATH + 'common/_header' ) %>
+  <main>
+    <div class="l-inner">
+      <br /><br /><br /><br /><br />
+      <h2>webP出力pictureタグ（widht, height属性なし・SP用画像あり・loading="lazy"）</h2>
+      <br />
+      <div class="dummy__image">
+        <%- include(EJS_PATH + 'component/_picture0', { file: "dummy/dummy", type: "jpg", alt: "alt", sp: true, ROOT_PATH: ROOT_PATH, loading: "lazy" }) %>
+      </div>
+      <br /><br /><br />
+
+      <h2>webP出力pictureタグ（widht, height属性なし）・SP用画像なし・loading="lazy"指定なし）</h2>
+      <div class="dummy__image">
+        <%- include(EJS_PATH + 'component/_picture0', { file: "dummy/dummy", type: "jpg", alt: "alt", sp: false, ROOT_PATH: ROOT_PATH, }) %>
+      </div>
+      <br /><br /><br />
+
+      <h2>webP出力pictureタグ（widht, height属性あり・SP用画像あり・loading="lazy"）</h2>
+      <br />
+      <div class="dummy__image">
+        <%- include(EJS_PATH + 'component/_picture1', { file: "dummy/dummy", type: "jpg", alt: "alt", sp: true, ROOT_PATH: ROOT_PATH, loading: "lazy", width: "1035", height: "690", spWidth: "690", spHeight: "460" }) %>
+      </div>
+      <br /><br /><br />
+  </main>
+  <%- include(EJS_PATH + 'common/_footer' ) %>
+</body>
+
+</html>

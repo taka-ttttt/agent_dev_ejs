@@ -1,0 +1,89 @@
+---
+description: SCSS/CSSコーディング規約（FLOCSS設計、BEM命名）
+globs: **/*.scss
+alwaysApply: false
+---
+
+# SCSSコーディング規約
+
+## FLOCSS設計パターン
+
+クラス名はプレフィックスで役割を明示します。
+
+| プレフィックス | 役割 | 例 |
+|---------------|------|-----|
+| `l-` | レイアウト | `l-header`, `l-inner` |
+| `c-` | コンポーネント（汎用） | `c-button`, `c-text` |
+| `p-` | プロジェクト（ページ固有） | `p-top-mv`, `p-footer` |
+| `u-` | ユーティリティ | `u-sp`, `u-pc` |
+
+## SCSSファイル命名規則
+
+- 基本構成: `_p-ページ名-セクション名.scss`
+- 例: `_p-top-mv.scss`, `_p-top-concept.scss`, `_p-about-hero.scss`
+
+## BEM命名規則
+
+```scss
+// Block__Element--Modifier
+.p-top-mv {           // Block
+  &__img {            // Element
+    &--active { }     // Modifier
+  }
+}
+```
+
+## サイズ指定（厳格ルール）
+
+**基本**: すべてのサイズ指定に `rem()` を使用
+**例外**: 1-2pxの線（border等）の太さのみ `px` を許可
+
+```scss
+// 良い例
+width: rem(100);
+padding: rem(16);
+font-size: maxrem(14);
+height: rem(6000);  // 大きな値もrem()を使用
+
+// 例外（線の太さのみpx可）
+border: 1px solid $color-base;
+border-bottom: 2px solid $color-primary;
+```
+
+## 色の使用
+
+- **頻繁に使う色**: `_setting.scss` の変数を使用
+- **使用頻度が低い色**: 各SCSSファイル内で直接カラーコード指定OK
+
+```scss
+// 頻繁に使う色は変数
+color: $color-base;      // #45484D
+color: $color-primary;   // #0052CC
+background: $white;      // #fff
+
+// 使用頻度が低い色は直接指定可
+background-color: #E0E8F0;
+```
+
+## レスポンシブ対応
+
+`_breakpoints.scss` の `$startFrom` 変数を確認し、SPファーストかPCファーストかを判断。
+
+**主要ブレークポイント**:
+| キー | 値 | 用途 |
+|------|-----|------|
+| `xl` | 1440px | min-width |
+| `lg` | 1024px以下 | タブレット対応 |
+| `md` | 767px以下 | SP対応（最頻使用） |
+| `sm` | 600px以下 | 小型SP対応 |
+
+```scss
+// 使用例
+.p-example {
+  width: rem(200);
+  
+  @include mq("md") {
+    width: rem(100);
+  }
+}
+```

@@ -1,0 +1,69 @@
+<%
+/**
+ * @param {string} ROOT_PATH - ルートパス（例: './'）
+ * @param {object} page - ページデータ（title, description, url等）
+ */
+const CSS_VERSION = "2023-12-07_2"
+const JS_VERSION = "2023-12-07"
+%>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- noindex nofollow -->
+  <meta name="robots" content="noindex, nofollow" />
+  <!-- meta情報 -->
+  <title><%= page['title'] %></title>
+  <meta name="description" content="<%= page['description'] %>" />
+  <meta property="og:site_name" content="<%= page['title'] %>" />
+  <meta property="og:url" content="<%= page['url'] %>" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="<%= page['title'] %>" />
+  <meta property="og:description" content="<%= page['description'] %>" />
+  <meta property="og:locale" content="ja_JP" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- （画像関連） -->
+  <link rel="icon" href="<%= ROOT_PATH %>favicon.ico" type="image/vnd.microsoft.icon">
+  <link rel="apple-touch-icon" href="<%= ROOT_PATH %>apple-touch-icon.png">
+  <link rel="icon" href="<%= ROOT_PATH %>android-chrome.png">
+  <meta property="og:image" content="<%= page['url'] %>assets/images/common/ogp.jpg" />
+  <!-- css -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.1/src/lite-yt-embed.css" />
+  <link rel="stylesheet" href="<%= ROOT_PATH %>assets/css/style.css?<%= CSS_VERSION %>" />
+  <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide-extension-auto-scroll@0.5.3/dist/js/splide-extension-auto-scroll.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.3.4/dist/lenis.min.js"></script> 
+  <script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.3.1/src/lite-yt-embed.js"></script>
+  <script defer src="<%= ROOT_PATH %>assets/js/script.js?<%= JS_VERSION %>"></script>
+  <!-- Googleフォント -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@600&family=Zen+Kaku+Gothic+New:wght@700&display=swap" rel="stylesheet">
+
+  <!-- SP画像プリロード -->
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_01_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_02_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_03_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_04_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_05_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_06_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_07_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+  <link rel="preload" href="<%= ROOT_PATH %>assets/images/top/mv_08_sp.jpg" as="image" type="image/jpeg" media="(max-width: 1050px)" fetchpriority="high">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-T2K5V2MEH4"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-T2K5V2MEH4');
+  </script>
+</head>

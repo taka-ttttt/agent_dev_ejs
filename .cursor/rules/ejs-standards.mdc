@@ -1,0 +1,134 @@
+---
+description: EJSテンプレートのコーディング規約
+globs: **/*.ejs
+alwaysApply: false
+---
+
+# EJSコーディング規約
+
+## ファイル命名
+
+- **パーシャル**: 先頭に `_` を付ける（例: `_header.ejs`, `_footer.ejs`）
+- **ページ**: `_` なし（例: `index.ejs`, `about.ejs`）
+
+## 変数宣言ルール
+
+### ページファイル
+
+```ejs
+<% const ROOT_PATH = './'; const EJS_PATH = './'; const PAGE_DATA = "top"; %>
+```
+
+### include時の変数渡し
+
+必要な変数を明示的に渡す。
+
+```ejs
+<%- include(EJS_PATH + 'common/_head', { ROOT_PATH: ROOT_PATH, page: json[PAGE_DATA] }) %>
+<%- include(EJS_PATH + 'common/_header', { ROOT_PATH: ROOT_PATH }) %>
+<%- include(EJS_PATH + 'component/_product-card', { ...product, ROOT_PATH: ROOT_PATH }) %>
+```
+
+### パーシャル先頭のJSDocコメント
+
+パーシャルファイルの先頭で期待する変数を明示。
+
+```ejs
+<%
+/**
+ * @param {string} ROOT_PATH - ルートパス（例: './'）
+ * @param {object} page - ページデータ（title, description, url等）
+ */
+%>
+```
+
+## JSONデータの参照
+
+`src/ejs/pageData/` のJSONは `json` 変数で参照します。
+
+```ejs
+<% const product = json.products.featuredProducts.find(p => p.id === 'ball_bearing'); %>
+<%= product.title %>
+```
+
+## 画像パス
+
+**すべての画像パスで `<%= ROOT_PATH %>` を使用する。**
+
+```ejs
+<img src="<%= ROOT_PATH %>assets/images/common/logo.svg" alt="ロゴ">
+<img src="<%= ROOT_PATH %>assets/images/top/mv_01.jpg" alt="メインビジュアル">
+```
+
+### Figma由来コーディング時の仮パス
+
+実画像が未配置の場合は**仮のファイルパス**を指定する。ビルド時はEJSではエラーにならないため、仮パスを指定した箇所に**仮パスである旨のコメントを明記する**。
+
+## レスポンシブ画像（pictureコンポーネント）
+
+画像は基本的に **pictureコンポーネント** を使用し、WebP形式を自動指定する。
+
+### _picture1（width/height属性あり・推奨）
+
+**pictureコンポーネントは必ずdivで囲む。**
+
+```ejs
+<div class="p-section__img">
+  <%- include(EJS_PATH + 'component/_picture1', {
+    file: "top/mv01",           // 拡張子なしのパス
+    type: "jpg",                // 元の画像形式
+    alt: "説明文",
+    sp: true,                   // SP用画像の有無
+    ROOT_PATH: ROOT_PATH,
+    loading: "lazy",            // ファーストビュー以外は "lazy"
+    width: "1440",              // PC用画像の幅
+    height: "810",              // PC用画像の高さ
+    spWidth: "375",             // SP用画像の幅
+    spHeight: "720"             // SP用画像の高さ
+  }) %>
+</div>
+```
+
+### _picture0（width/height属性なし）
+
+```ejs
+<div class="p-section__img">
+  <%- include(EJS_PATH + 'component/_picture0', {
+    file: "top/mv01",
+    type: "jpg",
+    alt: "説明文",
+    sp: true,
+    ROOT_PATH: ROOT_PATH,
+    loading: "lazy"
+  }) %>
+</div>
+```
+
+### パラメータ説明
+
+| パラメータ | 必須 | 説明 |
+|-----------|------|------|
+| `file` | ○ | 画像パス（拡張子なし、`assets/images/` からの相対パス） |
+| `type` | ○ | 元の画像形式（jpg, png等） |
+| `alt` | ○ | alt属性 |
+| `sp` | ○ | SP用画像の有無（true/false） |
+| `ROOT_PATH` | ○ | ルートパス |
+| `loading` | - | ファーストビュー以外は `"lazy"` を指定 |
+| `width`, `height` | - | PC用画像サイズ（_picture1のみ） |
+| `spWidth`, `spHeight` | - | SP用画像サイズ（_picture1のみ、sp: true時） |
+
+### 注意事項
+
+- ブレークポイントは **767px** で統一（コンポーネント内で設定済み）
+- WebP形式とフォールバック形式が自動出力される
+- ファーストビューの画像は `loading` を省略または指定しない
+
+## 外部リンク
+
+`target="_blank"` には必ず `rel="noopener noreferrer"` を付与。
+
+```html
+<a href="https://example.com" target="_blank" rel="noopener noreferrer">
+  外部リンク
+</a>
+```

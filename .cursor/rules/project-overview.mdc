@@ -1,0 +1,47 @@
+---
+description: プロジェクト全体のコーディングルールと環境設定
+alwaysApply: true
+---
+
+# プロジェクト概要
+
+EJS + Gulp + SCSS による静的サイト構築環境です。
+
+## 技術スタック
+
+- **テンプレート**: EJS（Embedded JavaScript）
+- **CSSプリプロセッサ**: SCSS（FLOCSS設計）
+- **タスクランナー**: Gulp
+- **対応ブラウザ**: last 2 versions, IE11
+
+## ディレクトリ構造
+
+```
+src/           # 作業ディレクトリ（ここで編集）
+├── ejs/       # EJSテンプレート
+├── sass/      # SCSSファイル
+├── js/        # JavaScript
+└── images/    # 画像素材
+
+dist/          # 出力ディレクトリ（自動生成、編集禁止）
+gulp/          # Gulp設定
+```
+
+## 作業ルール
+
+- `src/` フォルダ内のみで作業する
+- `dist/` フォルダは自動生成されるため編集禁止
+- Node.js v14以上、npm v8以上が必要
+
+## ビルドコマンド
+
+```bash
+cd gulp
+npx gulp        # 開発サーバー起動（ホットリロード付き）
+npx gulp build  # 本番ビルド（不要ファイル削除含む）
+```
+
+## 言語設定
+
+- コードコメントは日本語で記述
+- HTMLのlang属性は `ja` を使用

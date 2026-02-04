@@ -1,0 +1,12 @@
+@use "global" as *;
+
+// Screen Reader Only - SEO用の隠しテキスト
+.u-sr-only {
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+} 
