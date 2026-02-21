@@ -5,250 +5,243 @@ alwaysApply: true
 
 # FigmaMCPワークフロー
 
-Figmaからデザインを取得してコーディングする際のルールです。
+Figmaからデザインを取得してコーディングする際の手順を定義します。
 
 ## 必須参照ルール
 
-**コーディング時は以下のルールファイルを必ず確認・遵守すること:**
+**実装時は必ず該当するルールファイルを確認すること:**
 
-| ルールファイル | 内容 | 確認タイミング |
-|---------------|------|---------------|
-| `ejs-standards.mdc` | EJSテンプレート規約、include記法、pictureコンポーネント | EJSファイル作成時 |
-| `scss-standards.mdc` | FLOCSS/BEM命名、rem()使用、ファイル命名規則 | SCSSファイル作成時 |
-| `javascript-standards.mdc` | JS実装規約 | JS追加時 |
-
-### ファイル命名の整合性
-
-EJSとSCSSのファイル名は対応関係を保つこと:
-
-| ページ | セクション | EJSファイル | SCSSファイル | CSSクラス |
-|--------|-----------|-------------|--------------|-----------|
-| top | case | `top/_case.ejs` | `_p-top-case.scss` | `.p-top-case` |
-| top | hero | `top/_hero.ejs` | `_p-top-hero.scss` | `.p-top-hero` |
-| about | vision | `about/_vision.ejs` | `_p-about-vision.scss` | `.p-about-vision` |
+| ルールファイル | 参照タイミング | 確認内容 |
+|---------------|---------------|---------|
+| `ejs-standards.mdc` | EJSファイル作成時 | テンプレート記法、画像参照、コンポーネント使用方法 |
+| `scss-standards.mdc` | SCSSファイル作成時 | 命名規則、ファイル構成、変数使用方法 |
+| `javascript-standards.mdc` | JS追加時 | 実装規約 |
 
 ---
 
-## Figma MCPツールの使用
+## 1. 事前確認
 
-### URL解析ルール
+### 1-1. 対象ページの明確化（必須）
 
-FigmaのURL形式: `https://figma.com/design/:fileKey/:fileName?node-id=:int1-:int2`
-
-- `fileKey`: URLの `/design/` 直後の文字列
-- `nodeId`: `node-id=` パラメータの値（`-` を `:` に変換）
+Figma URLが共有された際、**どのページ用のセクションか不明な場合は必ず質問する**:
 
 ```
-例: https://figma.com/design/ABC123/MyDesign?node-id=1-2
-- fileKey: ABC123
-- nodeId: 1:2
+「このセクションはどのページに配置しますか？（例: top, service, about など）」
 ```
 
-**ブランチURLの場合**: `https://figma.com/design/:fileKey/branch/:branchKey/:fileName`
-- この場合は `branchKey` を `fileKey` として使用
+### 1-2. ページとファイルの対応関係
 
-### 主要ツールと使用順序
+| ページ種別 | EJSファイル | SCSSファイル | CSSクラス |
+|----------|------------|-------------|-----------|
+| トップページセクション | `top/_[セクション名].ejs` | `_p-top-[セクション名].scss` | `.p-top-[セクション名]` |
+| 下層ページセクション | `[ページ名]/_[セクション名].ejs` | `_p-[ページ名]-[セクション名].scss` | `.p-[ページ名]-[セクション名]` |
 
-| 順序 | ツール名 | 用途 |
-|------|----------|------|
-| 1 | `get_screenshot` | デザイン確認用のスクリーンショット取得 |
-| 2 | `get_design_context` | コード生成用のデザイン情報・アセットURL取得 |
-| 3 | `get_variable_defs` | カラー・スペーシング等の変数定義取得 |
-| 4 | `get_metadata` | ノード構造の概要確認（大きなフレーム時に使用） |
+**重要:** EJSとSCSSのファイル名は必ず対応させる。詳細は各ルールファイル参照。
 
-### 共通パラメータ（このプロジェクト用）
+---
 
-すべてのツール呼び出しで以下のパラメータを指定する:
+## 2. Figma MCPツールの使用
+
+### 2-1. 必須パラメータ
+
+すべてのツール呼び出しで以下を指定:
 
 ```
 clientLanguages: "html,scss,javascript"
 clientFrameworks: "ejs,gulp"
 ```
 
-## デザイン情報の取得手順
+### 2-2. URL解析
 
-1. `get_screenshot` でデザインの見た目を確認
-2. `get_design_context` でコード生成用の情報を取得
-3. `get_variable_defs` でカラー・フォント情報を取得
-4. 取得した情報を `src/sass/global/_setting.scss` の変数と照合
-5. 既存の変数があれば使用、なければ追加を検討
+FigmaのURL形式: `https://figma.com/design/:fileKey/:fileName?node-id=:int1-:int2`
 
-## アセット（画像）の扱い
+| パラメータ | 抽出方法 |
+|----------|---------|
+| `fileKey` | `/design/` 直後の文字列 |
+| `nodeId` | `node-id=` の値（`-` を `:` に変換） |
 
-### 画像ダウンロードは行わない
+例: `https://figma.com/design/ABC123/MyDesign?node-id=1-2`
+- fileKey: `ABC123`
+- nodeId: `1:2`
 
-Figma MCPからの画像ダウンロードは**行わない**。実在する画像ファイルの配置は後工程または手動で対応する。
+**ブランチURL**: `https://figma.com/design/:fileKey/branch/:branchKey/:fileName`
+- この場合は `branchKey` を `fileKey` として使用
 
-### EJSでの仮ファイルパス（必須）
+### 2-3. ツール使用順序
 
-画像を未配置のままコーディングするため、EJSでは**仮のファイルパス**を必ず設定する。ビルド時はEJS側でエラーにならないため、仮パスを指定した箇所に**仮パスである旨のコメントを明記する**だけでよい。
+| 順序 | ツール | 用途 | 必須/任意 |
+|-----|-------|------|----------|
+| 1 | `get_screenshot` | デザイン確認 | 必須 |
+| 2 | `get_design_context` | コード・アセットURL取得 | 必須 |
+| 3 | `get_variable_defs` | カラー・スペーシング変数取得 | 必須 |
+| 4 | `get_metadata` | ノード構造確認（大きなフレーム時） | 任意 |
 
-```ejs
-<% // 画像は仮パス。実画像配置後に差し替える %>
-<%- include(EJS_PATH + 'component/_picture1', {
-  file: "top/mv01",   // 仮パス
-  type: "jpg",
-  alt: "メインビジュアル",
-  ...
-}) %>
-```
+---
 
-### 実画像を配置する場合の参考（任意）
+## 3. デザイン情報の取得と処理
 
-手動で画像を配置する場合の保存先と命名規則:
+### 3-1. 基本フロー
 
-```
-src/images/
-├── common/     # 共通素材（ロゴ、アイコン等）
-├── top/        # トップページ用
-└── [ページ名]/ # 各ページ用
-```
+1. `get_screenshot` でビジュアル確認
+2. `get_design_context` でデザイン情報とアセットURLを取得
+3. `get_variable_defs` で変数定義を取得
+4. 取得した変数を `src/sass/global/_setting.scss` と照合
 
-命名形式: `[セクション名]-[要素名][連番].[拡張子]`（例: `top-mv01.jpg`, `top-mv01_sp.jpg`）
+### 3-2. SCSS変数の照合
 
-## 変数照合の手順
+**照合ルール:**
+- 既存の変数があれば使用
+- 新規変数が必要な場合は既存の命名規則に従う
+- 使用頻度が低い色は直接指定可
 
-### 照合対象ファイル
+詳細は `scss-standards.mdc` を参照。
 
-`src/sass/global/_setting.scss`
+---
 
-### 照合ルール
+## 4. 画像アセットの処理
 
-| Figma変数カテゴリ | SCSS変数対応 |
-|------------------|-------------|
-| カラー変数 | `$color-*`, `$white`, `$blue` 等 |
-| フォントファミリー | `$base-font-family`, `$en-font-family` |
-| フォントウェイト | `$regular`, `$normal`, `$bold` |
-| インナー幅 | `$inner-pc`, `$inner-sp` |
-| 余白 | `$padding-pc`, `$padding-sp` |
+### 4-1. 画像保存先の判断基準
 
-### 変数追加時のルール
+| 画像種別 | 保存先 | 判断基準 |
+|---------|--------|---------|
+| 小さいアイコン（SVG） | `src/images/common/icons/` | 50px以下、シンプル、UIパーツ |
+| 大きいイラスト・オブジェクト（SVG） | `src/images/[ページ名]/` | 50pxより大きい、複雑、装飾的 |
+| 写真・コンテンツ画像 | `src/images/[ページ名]/` | JPG/PNG形式 |
+| ロゴ | `src/images/common/logo/` | 会社ロゴ、サービスロゴ |
 
-- 既存変数と同じカテゴリにグループ化して追加
-- 変数名は既存の命名規則に従う（例: `$color-*` 形式）
-- 使用頻度が低い色は変数化せず、SCSSファイル内で直接指定可
-
-## コンポーネント化
-
-再利用可能なパーツは `src/ejs/component/` にパーシャルとして作成します。
+**判断フローチャート:**
 
 ```
-src/ejs/component/
-├── _picture0.ejs    # 画像コンポーネント（width/height属性なし）
-├── _picture1.ejs    # 画像コンポーネント（width/height属性あり・推奨）
-├── _product-card.ejs
-├── _button.ejs
-└── _video.ejs
+SVG要素を発見
+  ↓
+サイズは50px以下？
+  ↓ YES → src/images/common/icons/
+  ↓ NO
+  ↓
+複数ページで再利用される？
+  ↓ YES → src/images/common/icons/
+  ↓ NO
+  ↓
+src/images/[ページ名]/
 ```
 
-## セクションEJSファイルの配置ルール
+### 4-2. 画像ダウンロードと配置
 
-### 重要: ページの確認
+1. `get_design_context` から画像URLを取得
+2. `WebFetch` ツールでダウンロード
+3. 判断基準に従って適切なディレクトリに保存
 
-**コーディング開始前に、必ず対象ページを確認すること。**
+**命名規則:** `[セクション名]-[要素名][連番].[拡張子]`
+- 例: `top-hero01.jpg`, `icon-arrow.svg`
+- レスポンシブ画像: `top-hero01_sp.jpg` (SP版は `_sp` サフィックス)
 
-ユーザーがFigma URLを共有した際、どのページ用のセクションか不明な場合は、必ず以下のように質問して明確にする:
+### 4-3. 図形の誤認識への対処
 
-```
-「このセクションはどのページに配置しますか？（例: top, about, products など）」
-```
+Figma MCPが図形を**テキスト**として出力した場合:
 
-### 配置先ルール
+**判断手順:**
+1. `get_screenshot` でビジュアル確認
+2. `get_metadata` でレイヤー名確認
+3. 以下のいずれかに該当すればSVG画像として扱う:
+   - スクリーンショットで図形・アイコン・イラストと確認できる
+   - レイヤー名に「icon」「svg」「graphic」「shape」「illustration」「object」が含まれる
+   - 不自然な1文字テキスト（例: `<span>M</span>`）が出力されている
+4. 判断が難しい場合はユーザーに確認
 
-セクションのEJSパーシャルファイルは、**必ず該当ページのフォルダ内に配置する**。
+**実装方法:** 判断基準に該当した場合、上記4-1に従って保存先を決定。EJSでの記述方法は `ejs-standards.mdc` の「画像の扱い」セクションを参照。
 
+---
+
+## 5. ファイル作成
+
+### 5-1. ファイル配置
+
+**セクションパーシャル:**
 ```
 src/ejs/
 ├── top/           # トップページ用セクション
-│   ├── _case.ejs
-│   ├── _hero.ejs
-│   └── _news.ejs
-├── about/         # アバウトページ用セクション
-│   ├── _vision.ejs
-│   └── _history.ejs
-├── products/      # プロダクトページ用セクション
-│   └── _lineup.ejs
-├── common/        # 全ページ共通（ヘッダー、フッター等）
+│   └── _[セクション名].ejs
+├── [ページ名]/     # 下層ページ用セクション
+│   ├── index.ejs  # ページファイル
+│   └── _[セクション名].ejs
+├── common/        # 全ページ共通
 ├── component/     # 再利用コンポーネント
-└── index.ejs      # ページファイル
+└── pageData/      # JSONデータ
 ```
 
-### 命名規則
+### 5-2. 実装手順
 
-**※ 詳細は本ファイル先頭の「必須参照ルール > ファイル命名の整合性」を参照**
+1. **EJSパーシャル作成**
+   - 該当ページフォルダに配置（例: `top/_hero.ejs`）
+   - 詳細は `ejs-standards.mdc` を参照
 
-- **EJS**: `[ページ名]/_[セクション名].ejs`
-- **SCSS**: `_p-[ページ名]-[セクション名].scss`（`scss-standards.mdc` 参照）
-- **CSSクラス**: `.p-[ページ名]-[セクション名]`
-
-### include時の記述例
-
-**※ 詳細は `ejs-standards.mdc` を参照**
-
-```ejs
-<%- include(EJS_PATH + 'top/_case', { ROOT_PATH: ROOT_PATH, EJS_PATH: EJS_PATH }) %>
-```
-
-### SCSS作成時の注意
-
-**※ 詳細は `scss-standards.mdc` を参照**
-
-- ファイル配置: `src/sass/object/project/_p-[ページ名]-[セクション名].scss`
-- サイズ指定: `rem()` を使用（1-2pxの線を除く）
-- クラス命名: FLOCSS/BEM準拠
-
-## 実装の流れ
-
-1. **ページの確認**（不明な場合は必ず質問する）
-2. Figma URLからfileKeyとnodeIdを抽出
-3. `get_screenshot` でデザイン確認
-4. `get_design_context` でコード取得
-5. `get_variable_defs` で変数取得・照合
-6. **EJSパーシャル作成** → `ejs-standards.mdc` を参照
-   - 該当ページフォルダに配置（例: `top/_case.ejs`）
-   - pictureコンポーネント使用、変数宣言ルール遵守
-   - **画像は仮ファイルパスを指定し、仮パス箇所にコメントを明記**（上記「アセット（画像）の扱い」参照）
-7. **SCSSファイル作成** → `scss-standards.mdc` を参照
+2. **SCSSファイル作成**
    - ファイル名: `_p-[ページ名]-[セクション名].scss`
-   - FLOCSS/BEM準拠、rem()使用
-8. 必要に応じてJS追加 → `javascript-standards.mdc` を参照
-9. ビルド確認（`cd gulp && npx gulp`）
+   - 詳細は `scss-standards.mdc` を参照
 
-## エラー対応
+3. **JSファイル追加（必要に応じて）**
+   - 詳細は `javascript-standards.mdc` を参照
 
-### 出力サイズ超過時
+**注意:** ビルド（`npx gulp`）は実行しない。ユーザーが任意で行う。
 
-大きなフレームで `get_design_context` を呼ぶと、メタデータのみが返る場合がある。
+---
+
+## 6. エラー対応
+
+### 6-1. MCPが利用できない場合（最重要）
+
+MCPが正常に機能しない場合（ツール呼び出し失敗、タイムアウト、認証エラー等）:
+
+**対応手順:**
+1. **処理を中止する** — デザイン情報がない状態で推測実装しない
+2. **ユーザーに報告する**（日本語で簡潔に）:
+   - 「Figma MCPが利用できませんでした」
+   - 原因（ツール呼び出しエラー、認証エラー、ノード未検出、タイムアウト等）
+   - 確認事項（Figmaデスクトップの接続、URL・node-idの確認、MCPサーバーの起動状態）
+3. **代替案を提案**（実装は進めない）:
+   - 「MCPが復旧したら再度お試しください」
+   - 「デザイン仕様を文章や画像で共有いただければ実装できます」
+
+**MCPなしでFigma由来の実装を進めない。**
+
+### 6-2. 出力サイズ超過時
+
+大きなフレームで `get_design_context` を呼ぶとメタデータのみが返る場合:
 
 **対処法:**
 1. `get_metadata` で子ノードのIDを取得
 2. 子ノードごとに `get_design_context` を個別に呼び出す
-3. または `forceCode: true` を明示的に指定（ユーザーが要求した場合のみ）
+3. `forceCode: true` を指定（ユーザーが要求した場合のみ）
 
-### ツール呼び出し失敗時
+### 6-3. その他のエラー
 
 | エラー種類 | 対処法 |
 |-----------|--------|
-| ネットワークエラー | 数秒待ってリトライ |
-| 認証エラー | Figmaデスクトップアプリの接続状態を確認 |
-| ノードが見つからない | URLのnode-idパラメータを再確認 |
+| ネットワークエラー | リトライ。失敗が続く場合は「6-1. MCPが利用できない場合」に従う |
+| 認証エラー | Figmaデスクトップの接続確認。解消できない場合は「6-1」に従う |
+| ノードが見つからない | URLの `node-id` パラメータを再確認 |
 
-## 実装チェックリスト
+---
+
+## 7. 実装チェックリスト
 
 ### 事前確認
-- [ ] **対象ページを確認した**（不明な場合は質問で明確化）
-- [ ] Figma URLからfileKeyとnodeIdを正しく抽出した
+- [ ] 対象ページを確認した（不明な場合は質問で明確化）
+- [ ] Figma URLから `fileKey` と `nodeId` を正しく抽出した
 
 ### Figmaツール使用
-- [ ] get_screenshotでデザインを確認した
-- [ ] get_design_contextでコード情報を取得した
-- [ ] get_variable_defsで変数を取得し、_setting.scssと照合した
+- [ ] `get_screenshot` でデザインを確認した
+- [ ] `get_design_context` でコード情報を取得した
+- [ ] `get_variable_defs` で変数を取得し `_setting.scss` と照合した
+
+### 画像処理
+- [ ] 画像URLを取得した
+- [ ] SVG画像の分類を実施した（50px基準で判断）
+- [ ] 図形の誤認識チェックを実施した
+- [ ] `WebFetch` で画像をダウンロードした
+- [ ] 適切なディレクトリに保存した
 
 ### ファイル作成
-- [ ] **EJS**: `ejs-standards.mdc` に従ってパーシャル作成（例: `top/_case.ejs`）
-  - 画像は仮ファイルパスを指定し、仮パス箇所にコメントを明記した
-- [ ] **SCSS**: `scss-standards.mdc` に従ってファイル作成（例: `_p-top-case.scss`）
-- [ ] EJSとSCSSのファイル名が対応している（`top/_case.ejs` ↔ `_p-top-case.scss`）
-
-### 最終確認
-- [ ] ビルド確認を行った（`npx gulp`）
+- [ ] **EJS**: `ejs-standards.mdc` に従って作成（例: `top/_hero.ejs`）
+- [ ] **SCSS**: `scss-standards.mdc` に従って作成（例: `_p-top-hero.scss`）
+- [ ] EJSとSCSSのファイル名が対応している

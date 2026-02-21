@@ -6,80 +6,149 @@ alwaysApply: false
 
 # EJSコーディング規約
 
+## ディレクトリ構造
+
+```
+src/ejs/
+├── top/           # トップページ用セクション
+│   ├── _case.ejs
+│   ├── _hero.ejs
+│   └── _news.ejs
+├── service/       # サービスページ用セクション
+│   ├── index.ejs  # サービスページファイル
+│   └── _service-introduction.ejs
+├── about/         # アバウトページ用セクション
+│   ├── index.ejs  # アバウトページファイル
+│   ├── _vision.ejs
+│   └── _history.ejs
+├── common/        # 全ページ共通（ヘッダー、フッター等）
+│   ├── _head.ejs
+│   ├── _header.ejs
+│   └── _footer.ejs
+├── component/     # 再利用コンポーネント
+│   ├── _picture.ejs
+│   └── _button.ejs
+├── pageData/      # JSONデータ
+│   └── pageData.json
+└── index.ejs      # トップページファイル
+```
+
 ## ファイル命名
 
-- **パーシャル**: 先頭に `_` を付ける（例: `_header.ejs`, `_footer.ejs`）
-- **ページ**: `_` なし（例: `index.ejs`, `about.ejs`）
+### パーシャルファイル
+
+先頭に `_` を付ける（例: `_header.ejs`, `_footer.ejs`, `_hero.ejs`）
+
+### ページファイル
+
+- **トップページ**: `src/ejs/index.ejs`
+- **下層ページ**: 各ページフォルダ内に `index.ejs` を作成
+  - 例: `src/ejs/service/index.ejs`, `src/ejs/about/index.ejs`
+
+### セクションファイルの配置ルール
+
+**セクションのパーシャルファイルは必ず該当ページのフォルダ内に配置する。**
+
+- **命名規則**: `[ページ名]/_[セクション名].ejs`
+- **例**: 
+  - トップページのcaseセクション → `top/_case.ejs`
+  - サービスページのintroductionセクション → `service/_service-introduction.ejs`
+  - アバウトページのvisionセクション → `about/_vision.ejs`
 
 ## 変数宣言ルール
 
 ### ページファイル
 
-```ejs
-<% const ROOT_PATH = './'; const EJS_PATH = './'; const PAGE_DATA = "top"; %>
-```
-
-### include時の変数渡し
-
-必要な変数を明示的に渡す。
+**ページファイルでは `ROOT_PATH` と `PAGE_DATA` のみ宣言する。**
 
 ```ejs
-<%- include(EJS_PATH + 'common/_head', { ROOT_PATH: ROOT_PATH, page: json[PAGE_DATA] }) %>
-<%- include(EJS_PATH + 'common/_header', { ROOT_PATH: ROOT_PATH }) %>
-<%- include(EJS_PATH + 'component/_product-card', { ...product, ROOT_PATH: ROOT_PATH }) %>
+<% ROOT_PATH='./'; const PAGE_DATA="top"; %>
 ```
 
-### パーシャル先頭のJSDocコメント
-
-パーシャルファイルの先頭で期待する変数を明示。
+下層ページの場合は `ROOT_PATH` を適切に設定する。
 
 ```ejs
-<%
-/**
- * @param {string} ROOT_PATH - ルートパス（例: './'）
- * @param {object} page - ページデータ（title, description, url等）
- */
-%>
+<% ROOT_PATH='../'; const PAGE_DATA="service"; %>
 ```
 
-## JSONデータの参照
+### ページファイルでのinclude記述
 
-`src/ejs/pageData/` のJSONは `json` 変数で参照します。
+**ページファイルでは相対パスで直接指定し、必要な変数のみを渡す。**
 
 ```ejs
-<% const product = json.products.featuredProducts.find(p => p.id === 'ball_bearing'); %>
-<%= product.title %>
+<%- include('./common/_head', { page: json[PAGE_DATA] }) %>
+<%- include('./common/_header') %>
+<%- include('./top/_case') %>
+<%- include('./common/_footer') %>
 ```
 
-## 画像パス
+- 相対パスで記述（例: `'./common/_head'`）
+- 変数渡しは必要最小限のみ（例: `_head` には `page` のみ、他は省略）
 
-**すべての画像パスで `<%= ROOT_PATH %>` を使用する。**
+### パーシャルファイルでのinclude記述
+
+**パーシャルファイル内で他のパーシャルをincludeする場合も相対パスを使用する。**
 
 ```ejs
-<img src="<%= ROOT_PATH %>assets/images/common/logo.svg" alt="ロゴ">
-<img src="<%= ROOT_PATH %>assets/images/top/mv_01.jpg" alt="メインビジュアル">
+<%- include('../component/_picture', {
+  file: "top/case01",
+  type: "jpg",
+  alt: "事例イメージ",
+  sp: true,
+  loading: "lazy",
+  width: "320",
+  height: "213",
+  spWidth: "320",
+  spHeight: "213"
+}) %>
 ```
 
-### Figma由来コーディング時の仮パス
+- パーシャルから component を呼ぶ場合: `'../component/_picture'`
+- 同一フォルダ内を呼ぶ場合: `'./_button'`
 
-実画像が未配置の場合は**仮のファイルパス**を指定する。ビルド時はEJSではエラーにならないため、仮パスを指定した箇所に**仮パスである旨のコメントを明記する**。
 
-## レスポンシブ画像（pictureコンポーネント）
+## 画像の扱い
 
-画像は基本的に **pictureコンポーネント** を使用し、WebP形式を自動指定する。
+### 基本方針
 
-### _picture1（width/height属性あり・推奨）
+**すべての画像は原則として pictureコンポーネント (`_picture.ejs`) を使用する。**
 
-**pictureコンポーネントは必ずdivで囲む。**
+- レスポンシブ対応（PC/SP）
+- WebP形式の自動適用
+- フォールバック形式の自動生成
+- ブレークポイント: 767px（コンポーネント内で設定済み）
+
+### 画像ファイルの配置先
+
+```
+src/images/
+├── common/       # 共通素材（ロゴ、アイコン等）
+├── top/          # トップページ用
+└── [ページ名]/   # 各ページ用
+```
+
+命名規則: `[セクション名]-[要素名][連番].[拡張子]`  
+例: `case01.jpg`, `case01_sp.jpg`（SP用）
+
+### pictureコンポーネントの使い方
+
+#### 必須ルール
+
+1. **必ずdivで囲む**
+2. **width/height属性を指定する**（推奨、CLS対策）
+
+**注:** `ROOT_PATH` はページファイルで定義されているため、pictureコンポーネント呼び出し時に指定する必要はない（コンポーネント内で自動参照される）。
+
+#### 基本的な記述例（width/height属性あり・推奨）
 
 ```ejs
 <div class="p-section__img">
-  <%- include(EJS_PATH + 'component/_picture1', {
-    file: "top/mv01",           // 拡張子なしのパス
-    type: "jpg",                // 元の画像形式
+  <% // 画像ファイルパス: assets/images/top/mv01.jpg および mv01_sp.jpg %>
+  <%- include('../component/_picture', {
+    file: "top/mv01",           // 拡張子なし、assets/images/ からの相対パス
+    type: "jpg",                // 元の画像形式（jpg, png等）
     alt: "説明文",
-    sp: true,                   // SP用画像の有無
-    ROOT_PATH: ROOT_PATH,
+    sp: true,                   // SP用画像あり
     loading: "lazy",            // ファーストビュー以外は "lazy"
     width: "1440",              // PC用画像の幅
     height: "810",              // PC用画像の高さ
@@ -89,39 +158,70 @@ alwaysApply: false
 </div>
 ```
 
-### _picture0（width/height属性なし）
+#### width/height属性なしの場合
 
 ```ejs
 <div class="p-section__img">
-  <%- include(EJS_PATH + 'component/_picture0', {
+  <%- include('../component/_picture', {
     file: "top/mv01",
     type: "jpg",
     alt: "説明文",
     sp: true,
-    ROOT_PATH: ROOT_PATH,
     loading: "lazy"
   }) %>
 </div>
 ```
 
-### パラメータ説明
+#### パラメータ一覧
 
 | パラメータ | 必須 | 説明 |
 |-----------|------|------|
 | `file` | ○ | 画像パス（拡張子なし、`assets/images/` からの相対パス） |
 | `type` | ○ | 元の画像形式（jpg, png等） |
 | `alt` | ○ | alt属性 |
-| `sp` | ○ | SP用画像の有無（true/false） |
-| `ROOT_PATH` | ○ | ルートパス |
-| `loading` | - | ファーストビュー以外は `"lazy"` を指定 |
-| `width`, `height` | - | PC用画像サイズ（_picture1のみ） |
-| `spWidth`, `spHeight` | - | SP用画像サイズ（_picture1のみ、sp: true時） |
+| `sp` | ○ | SP用画像の有無（true/false）<br>`true`の場合、`[file]_sp.[type]` ファイルが必要 |
+| `loading` | - | `"lazy"` または省略<br>ファーストビューの画像は省略 |
+| `width` | - | PC用画像の幅（指定推奨、CLS対策） |
+| `height` | - | PC用画像の高さ（指定推奨、CLS対策） |
+| `spWidth` | - | SP用画像の幅（`sp: true` かつ `width` 指定時のみ有効） |
+| `spHeight` | - | SP用画像の高さ（`sp: true` かつ `height` 指定時のみ有効） |
 
-### 注意事項
+### Figma由来のコーディング時の画像扱い
 
-- ブレークポイントは **767px** で統一（コンポーネント内で設定済み）
-- WebP形式とフォールバック形式が自動出力される
-- ファーストビューの画像は `loading` を省略または指定しない
+**実画像が未配置の場合は仮のファイルパスを指定する。**
+
+```ejs
+<div class="p-section__img">
+  <% // 画像は仮パス。実画像配置後に差し替える %>
+  <%- include('../component/_picture', {
+    file: "top/case01",         // 仮パス
+    type: "jpg",
+    alt: "事例イメージ",
+    sp: true,
+    loading: "lazy",
+    width: "1440",
+    height: "810",
+    spWidth: "375",
+    spHeight: "720"
+  }) %>
+</div>
+```
+
+- 仮パスを指定した箇所には**必ずコメントで明記する**
+- ビルド時にEJSではエラーにならないため、後から実画像を配置する運用が可能
+
+### 直接imgタグを使用するケース
+
+以下の場合のみ、pictureコンポーネントを使わず直接 `<img>` タグを使用する:
+
+- SVG画像（ロゴ、アイコン等）
+- WebP対応が不要な画像
+
+```ejs
+<img src="<%= ROOT_PATH %>assets/images/common/logo.svg" alt="ロゴ">
+```
+
+**必ず `<%= ROOT_PATH %>` を使用する。**
 
 ## 外部リンク
 
