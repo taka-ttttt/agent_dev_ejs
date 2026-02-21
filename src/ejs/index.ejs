@@ -1,15 +1,13 @@
-<% ROOT_PATH='./'; const EJS_PATH='./'; const PAGE_DATA="top"; %>
+<% ROOT_PATH='./'; const PAGE_DATA="top"; %>
 <!DOCTYPE html>
 <html lang="ja">
-<%- include(EJS_PATH + 'common/_head' ,{ rootPath: ROOT_PATH, page: json[PAGE_DATA] }) %>
+<%- include('./common/_head' ,{ page: json[PAGE_DATA] }) %>
 
 <body>
-  <%- include(EJS_PATH + 'common/_header' ) %>
+  <%- include('./common/_header') %>
   <main>
-
-
   </main>
-  <%- include(EJS_PATH + 'common/_footer' ) %>
+  <%- include('./common/_footer') %>
 </body>
 
 </html>
