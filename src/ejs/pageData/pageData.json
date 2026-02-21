@@ -8,5 +8,10 @@
     "title": "トップページ",
     "description": "トップページの説明文",
     "url": "https://xxx.com/"
+  },
+  "service": {
+    "title": "サービスページ",
+    "description": "サービスページの説明文",
+    "url": "https://xxx.com/service/"
   }
 }
