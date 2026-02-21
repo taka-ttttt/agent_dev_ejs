@@ -1,0 +1,83 @@
+<%
+/**
+ * レスポンシブ画像コンポーネント（picture要素 + WebP対応）
+ * 
+ * 【必須パラメータ】
+ * @param {string} file - 画像パス（拡張子なし、assets/images/からの相対パス）例: "top/mv01"
+ * @param {string} type - 元の画像形式（jpg, png等）
+ * @param {string} alt - alt属性
+ * @param {boolean} sp - SP用画像の有無（true/false）
+ * 
+ * 【オプションパラメータ】
+ * @param {string} [loading] - loading属性（ファーストビュー以外は "lazy" を指定）
+ * @param {string} [width] - PC用画像の幅（指定時のみwidth属性を付与）
+ * @param {string} [height] - PC用画像の高さ（指定時のみheight属性を付与）
+ * @param {string} [spWidth] - SP用画像の幅（sp: true かつ width指定時のみ有効）
+ * @param {string} [spHeight] - SP用画像の高さ（sp: true かつ width指定時のみ有効）
+ * @param {string} [breakpoint] - SP/PC切り替えのブレークポイント（デフォルト: "767px"）
+ * 
+ * 【親スコープから参照する変数】
+ * @requires {string} ROOT_PATH - ルートパス（ページファイルで定義済み、明示的な渡しは不要）
+ * 
+ */
+%>
+
+<%
+// ========================================
+// 定数・パス設定
+// ========================================
+const IMG_PATH = "assets/images/";
+const BASE_PATH = ROOT_PATH + IMG_PATH + file;
+const BREAKPOINT = typeof breakpoint !== 'undefined' ? breakpoint : '767px';
+
+// ========================================
+// サイズ属性の有無を判定
+// ========================================
+const hasSize = typeof width !== 'undefined' && width !== '';
+const hasSpSize = hasSize && sp && typeof spWidth !== 'undefined' && spWidth !== '';
+
+// ========================================
+// 属性文字列を事前構築
+// ========================================
+// PC用サイズ属性
+const pcSizeAttr = hasSize 
+  ? ` width="${width}" height="${height}"` 
+  : '';
+
+// SP用サイズ属性
+const spSizeAttr = hasSpSize 
+  ? ` width="${spWidth}" height="${spHeight}"` 
+  : '';
+
+// loading属性
+const loadingAttr = typeof loading !== 'undefined' 
+  ? ` loading="${loading}"` 
+  : '';
+
+// ========================================
+// 画像パス構築
+// ========================================
+const pcWebpSrc = `${BASE_PATH}.webp`;
+const pcImageSrc = `${BASE_PATH}.${type}`;
+const spWebpSrc = `${BASE_PATH}_sp.webp`;
+const spImageSrc = `${BASE_PATH}_sp.${type}`;
+%>
+
+<picture>
+  <% if (sp) { %>
+  <source 
+    srcset="<%= spWebpSrc %>" 
+    media="(max-width: <%= BREAKPOINT %>)" 
+    type="image/webp"<%= spSizeAttr %>>
+  <source 
+    srcset="<%= spImageSrc %>" 
+    media="(max-width: <%= BREAKPOINT %>)" 
+    type="image/<%= type %>"<%= spSizeAttr %>>
+  <% } %>
+  <source 
+    srcset="<%= pcWebpSrc %>" 
+    type="image/webp"<%= pcSizeAttr %>>
+  <img 
+    src="<%= pcImageSrc %>" 
+    alt="<%= alt %>"<%= loadingAttr %><%= pcSizeAttr %>>
+</picture>

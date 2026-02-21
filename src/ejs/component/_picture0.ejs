@@ -1,9 +1,0 @@
-<% const EJS_PATH='../'; const IMG_PATH = "assets/images/"; %>
-<picture>
-  <% if (sp) { %>
-  <source srcset="<%= ROOT_PATH + IMG_PATH + file %>_sp.webp" media="(max-width: 767px)" type="image/webp">
-  <source srcset="<%= ROOT_PATH + IMG_PATH + file + '_sp.' + type %>" media="(max-width: 767px)" type="image/<%= type %>">
-  <% } %>
-  <source srcset="<%= ROOT_PATH + IMG_PATH + file %>.webp" type="image/webp">
-  <img src="<%= ROOT_PATH + IMG_PATH + file + '.' + type %>" alt="<%= alt %>" <% if (typeof loading !== 'undefined') { %>loading="<%= loading %>" <% } %>>
-</picture>
