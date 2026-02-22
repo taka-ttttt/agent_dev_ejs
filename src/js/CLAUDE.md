@@ -1,0 +1,205 @@
+# JavaScriptコーディング規約
+
+## 共通関数
+
+重複定義を避け、**ファイル冒頭で1回だけ定義**する。
+
+```javascript
+// ファイル冒頭で共通関数を定義
+const isDesktopDevice = () => {
+  const isHoverSupported = window.matchMedia('(hover: hover)').matches;
+  const isPointerFine = window.matchMedia('(pointer: fine)').matches;
+  return isHoverSupported && isPointerFine;
+};
+
+// 以降の各機能で使用
+```
+
+## ブレークポイント定数
+
+SCSSのブレークポイントと同期を保つ。
+
+```javascript
+const BREAKPOINTS = {
+  md: 767,
+  lg: 1024,
+};
+
+// 使用例
+const mediaQuery = window.matchMedia(`(max-width: ${BREAKPOINTS.md}px)`);
+```
+
+## JS用セレクタの命名
+
+スタイル用クラスとJS用クラスを分離します。
+
+```html
+<!-- スタイル用: p-top-mv__img -->
+<!-- JS用: js-top-mv-img -->
+<div class="p-top-mv__img js-top-mv-img">
+```
+
+### 命名規則
+
+- プレフィックス: `js-`
+- 形式: `js-ページ名-要素名`（ケバブケース）
+
+```javascript
+// 良い例
+document.querySelector('.js-top-mv-first-img');
+document.querySelectorAll('.js-video-thumbnail');
+
+// 悪い例（スタイル用クラスをJSで使用）
+document.querySelector('.p-top-mv__first-img');
+```
+
+**重要**: JSでのDOM操作は必ず `js-` プレフィックスのクラスを使用。スタイル用クラス（p-, c-, l-）をJSで使用しない。
+
+## 状態クラス
+
+状態を表すクラスは `is-` プレフィックスを使用。
+
+```javascript
+element.classList.add('is-active');
+element.classList.remove('is-show');
+element.classList.toggle('is-open');
+```
+
+- `is-active`: アクティブ状態
+- `is-show`: 表示状態
+- `is-open`: 開いた状態
+- `is-hidden`: 非表示状態
+
+## data属性の活用
+
+動的なデータはdata属性で管理します。
+
+```html
+<div class="js-video-thumbnail"
+     data-modal-id="modal-mv"
+     data-video-id="DMHgCJeCYRE">
+```
+
+```javascript
+const videoId = element.dataset.videoId;
+const modalId = element.dataset.modalId;
+```
+
+## イベントリスナー
+
+```javascript
+// DOMContentLoadedで初期化
+document.addEventListener('DOMContentLoaded', () => {
+  initSlider();
+  initModal();
+});
+```
+
+---
+
+# アニメーション規約
+
+GSAP、ScrollTrigger、Splideを使用したアニメーション実装のルールです。
+
+## 使用ライブラリ
+
+- **GSAP**: アニメーション基盤
+- **ScrollTrigger**: スクロール連動アニメーション
+- **Splide**: スライダー/カルーセル
+
+## 基本パターン
+
+### セクションコメントで区切る
+
+```javascript
+/* ------------------------------
+セクション名 説明
+------------------------------ */
+document.addEventListener("DOMContentLoaded", function () {
+  const element = document.querySelector(".js-xxx");
+  if (!element) return; // 要素がない場合は早期リターン
+
+  // アニメーション処理
+});
+```
+
+### 早期リターン
+
+要素が存在しない場合は早期リターンでエラーを防ぐ。
+
+```javascript
+const target = document.querySelector(".js-target");
+if (!target) return;
+```
+
+## GSAP使用例
+
+### 初期状態の設定
+
+```javascript
+gsap.set(element, {
+  opacity: 0,
+  y: 20,
+});
+```
+
+### アニメーション実行
+
+```javascript
+gsap.to(element, {
+  opacity: 1,
+  y: 0,
+  duration: 0.8,
+  ease: "power2.out",
+});
+```
+
+## ScrollTrigger使用例
+
+```javascript
+gsap.to(element, {
+  opacity: 1,
+  scrollTrigger: {
+    trigger: element,
+    start: "top bottom-=20%",
+    end: "bottom center",
+    scrub: true,  // スクロール連動
+  },
+});
+```
+
+## Splide使用例
+
+```javascript
+const splide = new Splide(".js-slider", {
+  type: 'loop',
+  perPage: 3,
+  gap: '24px',
+  pagination: false,
+  breakpoints: {
+    767: {
+      perPage: 1,
+      gap: '16px',
+    },
+  },
+});
+
+splide.mount();
+```
+
+### AutoScrollプラグイン
+
+```javascript
+const splide = new Splide(".js-auto-slider", {
+  type: 'loop',
+  drag: false,
+  arrows: false,
+  pagination: false,
+  autoScroll: {
+    speed: 0.5,
+    pauseOnHover: false,
+  },
+});
+
+splide.mount(window.splide.Extensions);
+```
