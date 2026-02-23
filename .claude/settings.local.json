@@ -31,6 +31,7 @@
       "Bash(mkdir *)",
       "Bash(cp *)",
       "Bash(cd *)",
+      "Write(./.claude/tmp/**)",
       "Read(~/.zshrc)",
       "Read(~/.bashrc)",
       "mcp__figma-online__get_screenshot",
