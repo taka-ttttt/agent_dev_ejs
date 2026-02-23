@@ -22,18 +22,7 @@ FigmaのURLからEJSコンポーネントとSCSSを作成します。
 
 ## Phase 1: 事前確認
 
-### 1-1. URLパラメータの抽出
-
-- `fileKey`: `/design/` 直後の文字列
-- `nodeId`: `node-id=` の値（`-` を `:` に変換）
-
-### 1-2. 変数定義ファイルの読み込み
-
-以下を Read ツールで読み込む（変数マッピングに使用）:
-
-- `src/sass/global/_setting.scss`
-
-### 1-3. コンポーネント名の確定
+### 1-1. コンポーネント名の確定
 
 **引数にコンポーネント名がある場合:**
 - 引数の値をそのまま使用し、質問せずに進める
@@ -49,6 +38,17 @@ FigmaのURLからEJSコンポーネントとSCSSを作成します。
 | EJSパス | `src/ejs/component/_[componentName].ejs` |
 | SCSSパス | `src/sass/object/component/_c-[componentName].scss` |
 | ルートクラス | `.c-[componentName]` |
+
+### 1-2. URLパラメータの抽出
+
+- `fileKey`: `/design/` 直後の文字列
+- `nodeId`: `node-id=` の値（`-` を `:` に変換）
+
+### 1-3. 変数定義ファイルの読み込み
+
+以下を Read ツールで読み込む（変数マッピングに使用）:
+
+- `src/sass/global/_setting.scss`
 
 ---
 
@@ -90,6 +90,8 @@ _setting.scss と照合した結果:
 
 `get_design_context` のアセットURLから画像をダウンロードして保存する。
 
+**実施方法（必須）:** 画像の取得は **WebFetch ツールでURLにアクセス**し、取得した内容を **Write ツールで保存**する。curl・wget は許可されていないため使用しない。
+
 | 条件 | 保存先 |
 |------|--------|
 | 50px以下のアイコン | `src/images/common/icons/` |
@@ -128,32 +130,14 @@ _setting.scss と照合した結果:
    - Markup Agentが作成したEJSファイルの内容（クラス名参照用）
 3. 完了後、作成されたSCSSファイルを Read ツールで読み込んでおく
 
-### 6-3. Code Review Agent
-
-1. `.claude/skills/shared-agents/code-review.md` を読み込む
-2. 以下を渡して `subagent_type: "general-purpose"` でTaskツールを起動する:
-   - エージェントファイルの内容
-   - デザインブリーフ
-   - 最新のEJSファイルの内容
-   - 最新のSCSSファイルの内容
-3. 完了後、修正されたEJS/SCSSファイルを Read ツールで読み込んでおく
-
-### 6-4. Integration Agent
+### 6-3. Integration Agent
 
 1. `.claude/skills/implementing-component/agents/integration.md` を読み込む
 2. 以下を渡して `subagent_type: "general-purpose"` でTaskツールを起動する:
    - エージェントファイルの内容
    - デザインブリーフ
-   - 最新のEJSファイルの内容（Code Review後）
-   - 最新のSCSSファイルの内容（Code Review後）
-
-### 6-5. Visual Agent
-
-1. `.claude/skills/shared-agents/visual.md` を読み込む
-2. 以下を渡して `subagent_type: "general-purpose"` でTaskツールを起動する:
-   - エージェントファイルの内容
-   - デザインブリーフ（スクリーンショット情報含む）
-   - 作成されたファイルパス一覧
+   - 最新のEJSファイルの内容
+   - 最新のSCSSファイルの内容
 
 ---
 
@@ -167,4 +151,4 @@ _setting.scss と照合した結果:
 | SCSSファイル | `src/sass/object/component/_c-[componentName].scss` | 作成 |
 | 画像 | `src/images/...` | ダウンロード済み |
 
-Code Review / Visual Agentから報告された未解決の問題があれば明記する。
+必要に応じて `/code-review` `/visual-check` を実行してください。
