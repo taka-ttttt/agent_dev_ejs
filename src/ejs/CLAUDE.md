@@ -27,6 +27,40 @@ src/ejs/
 └── index.ejs      # トップページファイル
 ```
 
+## クラス名の付与ルール
+
+**すべての要素（div, section, ul, li, span 等）には必ずクラス名を指定する。**
+
+- クラスなしの要素を残さない（例: `<div>` → NG、`<div class="p-top-hero__img">` → OK）
+- クラス名は `src/sass/CLAUDE.md` のFLOCSS + BEM規則に従う
+
+### FLOCSSプレフィックス
+
+| プレフィックス | 役割 | 例 |
+|---------------|------|-----|
+| `l-` | レイアウト | `l-inner` |
+| `c-` | 汎用コンポーネント | `c-button` |
+| `p-` | ページ固有セクション | `p-top-mv`, `p-top-hero__img` |
+| `u-` | ユーティリティ | `u-sp`, `u-pc` |
+
+### BEM命名パターン
+
+セクション内の要素は `p-[ページ名]-[セクション名]__[要素名]` の形式で命名する。
+
+```ejs
+<!-- NG: クラスなし -->
+<div>
+  <%- include('../component/_picture', { ... }) %>
+</div>
+
+<!-- OK: FLOCSS + BEM に従ったクラスあり -->
+<div class="p-top-hero__img">
+  <%- include('../component/_picture', { ... }) %>
+</div>
+```
+
+---
+
 ## ファイル命名
 
 ### パーシャルファイル
@@ -79,6 +113,47 @@ src/ejs/
 - 相対パスで記述（例: `'./common/_head'`）
 - 変数渡しは必要最小限のみ（例: `_head` には `page` のみ、他は省略）
 
+### コンポーネントファイルでの変数宣言
+
+**コンポーネントファイル（`component/` 配下）では、受け取るパラメータと内部変数をファイル冒頭で宣言する。**
+
+#### 構成
+
+1. **JSDocコメントブロック** — 受け取るパラメータをすべて記述
+2. **内部変数の宣言ブロック** — オプション引数のデフォルト値解決など、テンプレート本体で使う変数をまとめて宣言
+
+```ejs
+<%
+/**
+ * コンポーネントの説明
+ *
+ * 【必須パラメータ】
+ * @param {string} title     - タイトル
+ * @param {string} imgFile   - 画像パス（拡張子なし）
+ * @param {string} imgType   - 画像形式（jpg, png 等）
+ *
+ * 【オプションパラメータ】
+ * @param {string} [loading] - loading属性（ファーストビュー以外は "lazy"）
+ */
+%>
+
+<%
+const _loading = typeof loading !== 'undefined' ? loading : 'lazy';
+%>
+
+<!-- テンプレート本体 -->
+<div class="c-example">
+  ...
+</div>
+```
+
+- JSDocコメントは `/** ... */` 形式で記述
+- オプション引数は `typeof xxx !== 'undefined'` でデフォルト値を設定
+- 内部変数名は `_` プレフィックスを付ける（例: `_loading`, `_imgWidth`）
+- セクションのパーシャル（`top/` 等）では不要。コンポーネントファイルのみに適用
+
+---
+
 ### パーシャルファイルでのinclude記述
 
 **パーシャルファイル内で他のパーシャルをincludeする場合も相対パスを使用する。**
@@ -128,7 +203,8 @@ src/images/
 #### 必須ルール
 
 1. **必ずdivで囲む**
-2. **width/height属性を指定する**（推奨、CLS対策）
+2. **囲むdivには必ずクラス名を指定する**（例: `class="p-section__img"`）
+3. **width/height属性を指定する**（推奨、CLS対策）
 
 **注:** `ROOT_PATH` はページファイルで定義されているため、pictureコンポーネント呼び出し時に指定する必要はない（コンポーネント内で自動参照される）。
 
