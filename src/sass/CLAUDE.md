@@ -30,7 +30,8 @@
 ## サイズ指定（厳格ルール）
 
 **基本**: すべてのサイズ指定に `rem()` を使用
-**例外**: 1-2pxの線（border等）の太さのみ `px` を許可
+**例外1**: 1-2pxの線（border等）の太さのみ `px` を許可
+**例外2**: `letter-spacing` は `em` を使用
 
 ```scss
 // 良い例
@@ -42,6 +43,9 @@ height: rem(6000);  // 大きな値もrem()を使用
 // 例外（線の太さのみpx可）
 border: 1px solid $color-base;
 border-bottom: 2px solid $color-primary;
+
+// 例外（letter-spacingはem）
+letter-spacing: 0.1em;
 ```
 
 ## 色の使用
