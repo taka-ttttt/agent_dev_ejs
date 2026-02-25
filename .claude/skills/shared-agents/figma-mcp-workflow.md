@@ -15,6 +15,12 @@ clientLanguages: "html,scss,javascript"
 clientFrameworks: "ejs,gulp"
 ```
 
+`get_design_context` には追加で必須指定:
+
+```
+dirForAssetWrites: "[ワークスペース絶対パス]/src/images/common"
+```
+
 MCPが利用できない場合は**処理を中止してユーザーに報告する**。推測で実装しない。
 
 出力サイズ超過でメタデータのみ返る場合:
