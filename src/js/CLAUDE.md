@@ -1,9 +1,3 @@
----
-description: JavaScriptコーディング規約（セレクタ命名、data属性）
-globs: **/*.js
-alwaysApply: false
----
-
 # JavaScriptコーディング規約
 
 ## 共通関数

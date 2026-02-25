@@ -1,9 +1,3 @@
----
-description: EJSテンプレートのコーディング規約
-globs: **/*.ejs
-alwaysApply: false
----
-
 # EJSコーディング規約
 
 ## ディレクトリ構造
@@ -84,7 +78,7 @@ src/ejs/
 **セクションのパーシャルファイルは必ず該当ページのフォルダ内に配置する。**
 
 - **命名規則**: `[ページ名]/_[セクション名].ejs`
-- **例**: 
+- **例**:
   - トップページのcaseセクション → `top/_case.ejs`
   - サービスページのintroductionセクション → `service/_service-introduction.ejs`
   - アバウトページのvisionセクション → `about/_vision.ejs`
@@ -181,7 +175,6 @@ const _loading = typeof loading !== 'undefined' ? loading : 'lazy';
 - パーシャルから component を呼ぶ場合: `'../component/_picture'`
 - 同一フォルダ内を呼ぶ場合: `'./_button'`
 
-
 ## 画像の扱い
 
 ### 基本方針
@@ -202,7 +195,7 @@ src/images/
 └── [ページ名]/   # 各ページ用
 ```
 
-命名規則: `[セクション名]-[要素名][連番].[拡張子]`  
+命名規則: `[セクション名]-[要素名][連番].[拡張子]`
 例: `case01.jpg`, `case01_sp.jpg`（SP用）
 
 ### pictureコンポーネントの使い方

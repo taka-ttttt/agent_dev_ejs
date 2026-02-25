@@ -1,9 +1,3 @@
----
-description: SCSS/CSSコーディング規約（FLOCSS設計、BEM命名）
-globs: **/*.scss
-alwaysApply: false
----
-
 # SCSSコーディング規約
 
 ## FLOCSS設計パターン
@@ -74,6 +68,7 @@ background-color: #E0E8F0;
 `_breakpoints.scss` の `$startFrom` 変数を確認し、SPファーストかPCファーストかを判断。
 
 **主要ブレークポイント**:
+
 | キー | 値 | 用途 |
 |------|-----|------|
 | `xl` | 1440px | min-width |
@@ -85,7 +80,7 @@ background-color: #E0E8F0;
 // 使用例
 .p-example {
   width: rem(200);
-  
+
   @include mq("md") {
     width: rem(100);
   }
